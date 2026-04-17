@@ -21,6 +21,7 @@
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@types/d3-array": "^3.2.2",
 		"@types/d3-chord": "^3.0.6",
+		"@types/d3-shape": "^3.1.8",
 		"@types/node": "^24",
 		"eslint": "^10.2.0",
 		"eslint-config-prettier": "^10.1.8",
@@ -36,6 +37,7 @@
 	},
 	"dependencies": {
 		"d3-array": "^3.2.4",
-		"d3-chord": "^3.0.1"
+		"d3-chord": "^3.0.1",
+		"d3-shape": "^3.2.0"
 	}
 }
