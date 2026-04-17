@@ -1,7 +1,9 @@
+<!-- TODO - How to remove small arcs? -->
+<!-- TODO - How to make chart load/increase less abrupt? -->
 <script>
 	import { labels, matrix } from '$lib/data/deputados-adj-matrix.json';
 	import { descending } from 'd3-array';
-	import { chord, ribbon } from 'd3-chord';
+	import { chord, ribbon, chordDirected, ribbonArrow } from 'd3-chord';
 	import { arc } from 'd3-shape';
 
 	let { width, height } = $props();
@@ -9,57 +11,64 @@
 	const defaultRibbonOpacity = 0.75;
 	const defaultArcOpacity = 1;
 	const nonHoveredOpacity = 0.3;
-	// const newMatrix = matrix.map((row, i) => row.map((value, j) => (i == j ? 0 : value)));
+	const newMatrix = matrix.map((row, i) => row.map((value, j) => (i === j ? 0 : value)));
+	const newGroup = 'a';
 
-	const chordGenerator = chord().padAngle(0.05).sortSubgroups(descending);
-	const chords = chordGenerator(matrix);
+	const chordGenerator = chordDirected().padAngle(0.05).sortSubgroups(descending);
+	const chords = chordGenerator(newMatrix);
 
 	let outerRadius = $derived(Math.min(width, height) / 2 - 80);
 	let innerRadius = $derived(outerRadius - 15);
 
 	let arcGenerator = $derived(arc().innerRadius(innerRadius).outerRadius(outerRadius));
-	let ribbonGenerator = $derived(ribbon().radius(innerRadius - 5));
+	let ribbonGenerator = $derived(ribbonArrow().radius(innerRadius - 5));
 
 	let hoveredGroupIndex = $state(null);
-	let hoveredRibbon = $state(null);
+	let hoveredRibbonKey = $state(null);
+	let hoveredRibbonIndices = $state(null);
 
 	function clearHover() {
 		hoveredGroupIndex = null;
-		hoveredRibbon = null;
+		hoveredRibbonKey = null;
+		hoveredRibbonIndices = null;
 	}
 
 	function handleGroupEnter(group) {
 		hoveredGroupIndex = group.index;
-		hoveredRibbon = null;
+		hoveredRibbonKey = null;
+		hoveredRibbonIndices = null;
 	}
 
 	function handleRibbonEnter(chord) {
 		hoveredGroupIndex = null;
-		hoveredRibbon = chord;
+		hoveredRibbonKey = `${chord.source.index}-${chord.target.index}`;
+		hoveredRibbonIndices = { source: chord.source.index, target: chord.target.index };
 	}
 
 	function isRibbonConnectedToGroup(chord, groupIndex) {
-		return chord.source.index == groupIndex || chord.target.index == groupIndex;
+		return chord.source.index === groupIndex || chord.target.index === groupIndex;
 	}
 
 	function getArcOpacity(group) {
-		if (hoveredGroupIndex == null && hoveredRibbon == null) return defaultArcOpacity;
+		if (hoveredGroupIndex === null && hoveredRibbonKey === null) return defaultArcOpacity;
 
-		if (hoveredRibbon !== null)
-			return isRibbonConnectedToGroup(hoveredRibbon, group.index)
+		if (hoveredRibbonIndices !== null) {
+			return hoveredRibbonIndices.source === group.index ||
+				hoveredRibbonIndices.target === group.index
 				? defaultArcOpacity
 				: nonHoveredOpacity;
+		}
 
-		return group.index == hoveredGroupIndex ? defaultArcOpacity : nonHoveredOpacity;
+		return group.index === hoveredGroupIndex ? defaultArcOpacity : nonHoveredOpacity;
 	}
 
 	function getRibbonOpacity(chord) {
-		if (hoveredGroupIndex == null && hoveredRibbon == null) {
-			return defaultRibbonOpacity;
-		}
+		if (hoveredGroupIndex === null && hoveredRibbonKey === null) return defaultRibbonOpacity;
 
-		if (hoveredRibbon !== null) {
-			return chord == hoveredRibbon ? defaultRibbonOpacity : nonHoveredOpacity;
+		if (hoveredRibbonKey !== null) {
+			return `${chord.source.index}-${chord.target.index}` === hoveredRibbonKey
+				? 1
+				: nonHoveredOpacity;
 		}
 
 		return isRibbonConnectedToGroup(chord, hoveredGroupIndex)
@@ -96,7 +105,9 @@
 				fill="steelblue"
 				stroke="none"
 				opacity={getRibbonOpacity(chord)}
-				onmouseenter={() => handleRibbonEnter(chord)}
+				onmouseenter={() => {
+					handleRibbonEnter(chord);
+				}}
 				onmouseleave={clearHover}
 				role="none"
 			/>
@@ -121,4 +132,7 @@
 </svg>
 
 <style>
+	path {
+		transition: opacity 500ms ease;
+	}
 </style>
