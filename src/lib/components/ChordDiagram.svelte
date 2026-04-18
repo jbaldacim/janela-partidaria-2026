@@ -208,6 +208,8 @@
 			{/each}
 		</g>
 	</svg>
+
+	<!-- TODO - Add legend interaction to highlight all arcs in that alignment and all their ribbons -->
 	<div class="legend">
 		{#each legendGroups as legend}
 			<div class="legend-item">
