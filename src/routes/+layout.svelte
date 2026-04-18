@@ -9,9 +9,7 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div>
-	{@render children()}
-</div>
+{@render children()}
 
 <style>
 	:global(*, *::before, *::after) {
@@ -22,9 +20,6 @@
 		font-family: 'Outfit Variable', sans-serif;
 		background: #ddd;
 		max-height: 100vh;
-	}
-
-	div {
 		padding: 1rem;
 	}
 </style>

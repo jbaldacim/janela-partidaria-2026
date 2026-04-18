@@ -233,9 +233,8 @@
 		display: grid;
 		align-items: center;
 		justify-content: center;
-		grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-		gap: 24px;
-		width: 100%;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 12px;
 	}
 
 	.legend-item {

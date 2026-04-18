@@ -3,7 +3,7 @@
 	let minWidth = $state(400);
 	let windowWidth = $state(0);
 
-	let width = $derived(Math.max(minWidth, 1200));
+	let width = $derived(Math.max(minWidth, windowWidth));
 	const height = 800;
 </script>
 
